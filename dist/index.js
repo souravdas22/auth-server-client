@@ -5,6 +5,6 @@ import App from './App';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { QueryClient, QueryClientProvider } from 'react-query';
-var root = ReactDOM.createRoot(document.getElementById('root'));
-var queryClient = new QueryClient();
+const root = ReactDOM.createRoot(document.getElementById('root'));
+const queryClient = new QueryClient();
 root.render(_jsxs(_Fragment, { children: [_jsx(QueryClientProvider, { client: queryClient, children: _jsx(App, {}) }), _jsx(ToastContainer, { autoClose: 1500 })] }));

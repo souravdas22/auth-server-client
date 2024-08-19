@@ -1,9 +1,14 @@
 import { toast } from "react-toastify";
 import axiosInstance from "../../helper/axiosInstance";
-export const getProductById = async (id) => {
+export const fetchProductbysize = async (selectedSizes) => {
     var _a, _b, _c;
     try {
-        const response = await axiosInstance.get(`/product/${id}`);
+        const sizeQuery = selectedSizes && selectedSizes
+            .map((size) => encodeURIComponent(size))
+            .join(",");
+        // console.log(sizeQuery)
+        const response = await axiosInstance.get(`/product/filter/size?size=${sizeQuery}`);
+        // console.log(response.data);
         return (_a = response === null || response === void 0 ? void 0 : response.data) === null || _a === void 0 ? void 0 : _a.data;
     }
     catch (error) {

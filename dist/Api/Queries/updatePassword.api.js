@@ -1,9 +1,10 @@
 import { toast } from "react-toastify";
 import axiosInstance from "../../helper/axiosInstance";
-export const registerUser = async (formData) => {
+export const updatePassword = async ({ data, token }) => {
     var _a, _b;
     try {
-        const response = await axiosInstance.post(`/register`, formData);
+        console.log(data, token);
+        const response = await axiosInstance.post(`/update-password/${token}`, data);
         return response === null || response === void 0 ? void 0 : response.data;
     }
     catch (error) {

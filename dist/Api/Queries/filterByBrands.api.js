@@ -1,9 +1,11 @@
 import { toast } from "react-toastify";
 import axiosInstance from "../../helper/axiosInstance";
-export const getProductById = async (id) => {
+export const fetchProductbybrand = async (selectedBrands) => {
     var _a, _b, _c;
     try {
-        const response = await axiosInstance.get(`/product/${id}`);
+        const brandQuery = selectedBrands &&
+            selectedBrands.map((brand) => encodeURIComponent(brand)).join(",");
+        const response = await axiosInstance.get(`/product/filter/brand?brand=${brandQuery}`);
         return (_a = response === null || response === void 0 ? void 0 : response.data) === null || _a === void 0 ? void 0 : _a.data;
     }
     catch (error) {
