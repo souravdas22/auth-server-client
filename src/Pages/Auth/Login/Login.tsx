@@ -1,11 +1,13 @@
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { TextField, Button, Box, Typography } from "@mui/material";
+import { TextField, Button, Box, Typography, CircularProgress } from "@mui/material";
 import { useMutation } from "react-query";
 import { loginUser } from "../../../Api/Queries/loginUser.api";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { profile_pic } from "../../../helper/axiosInstance";
+import LoadingButton from "@mui/lab/LoadingButton";
+
 
 interface LoginFormInputs {
   email: string;
@@ -23,17 +25,15 @@ const Login: React.FC = () => {
   const mutation = useMutation(loginUser, {
     onSuccess: (data) => {
       toast.success(data?.message);
-      if (data === undefined) {
-        toast.error("login unsuccessfull");
-      }
       localStorage.setItem("token", data?.token);
       localStorage.setItem("profile", profile_pic(data?.user?.image));
       localStorage.setItem("username", data?.user?.name);
-      if (data !== undefined) {
-        navigate("/");
-      }
+      if (data?.status === 200) {
+       navigate('/')
+     }
     },
   });
+ 
 
   const onSubmit: SubmitHandler<LoginFormInputs> = (data) => {
     mutation.mutate(data);
@@ -78,17 +78,31 @@ const Login: React.FC = () => {
           Don't have an account? create one{" "}
           <Link to={"/register"}>register</Link>
         </Typography>
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 2, bgcolor: "teal" }}
-        >
-          Login
-        </Button>
+        <Typography variant="body2" textAlign={"right"}>
+          {" "}
+          <Link to={"/forgot-password"}>forgot password</Link>
+        </Typography>
+        {mutation.isLoading ? (
+          <LoadingButton
+            loading
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2, bgcolor: "teal", py: 2 }}
+            loadingIndicator={<CircularProgress color="inherit" size={24} />}
+          />
+        ) : (
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2, bgcolor: "teal" }}
+          >
+            Login
+          </Button>
+        )}
       </form>
-      {mutation.isLoading && <Typography>Loading...</Typography>}
     </Box>
   );
 };

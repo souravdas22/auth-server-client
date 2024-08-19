@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import {
   Container,
   TextField,
@@ -11,6 +11,9 @@ import {
   Box,
   InputLabel,
   Input,
+  FormControl,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -23,7 +26,9 @@ interface IProductForm {
   price: number;
   size: string[];
   color: string[];
-  image: FileList | null; // To handle file input
+  brand: "";
+  description: "";
+  image: FileList | null; 
 }
 
 export default function UpdateProduct() {
@@ -31,12 +36,14 @@ export default function UpdateProduct() {
   const navigate = useNavigate();
 
   const { data } = useQuery(["product", id], () => getProductById(id || ""));
-  const { register, handleSubmit, setValue, watch } = useForm<IProductForm>({
+  const { register, handleSubmit, setValue, watch,control } = useForm<IProductForm>({
     defaultValues: {
       name: "",
       price: 0,
       size: [],
       color: [],
+      brand: '',
+      description: "",
       image: null,
     },
   });
@@ -47,13 +54,15 @@ export default function UpdateProduct() {
       setValue("price", data.price);
       setValue("size", data.size);
       setValue("color", data.color);
+      setValue("brand", data.brand);
+      setValue("description", data.description);
     }
   }, [data, setValue]);
 
   const mutation = useMutation(updateProduct, {
     onSuccess: () => {
       toast.success("Product updated successfully");
-      navigate("/");
+      navigate("/products");
     },
     onError: () => {
       toast.error("Failed to update product");
@@ -67,6 +76,9 @@ export default function UpdateProduct() {
     productData.append("price", formData.price.toString());
     formData.size.forEach((size) => productData.append("size", size));
     formData.color.forEach((color) => productData.append("color", color));
+        productData.append("brand", formData.brand);
+    productData.append("description", formData.description);
+
     if (formData.image && formData.image.length > 0) {
       productData.append("image", formData.image[0]); 
     }
@@ -79,7 +91,7 @@ export default function UpdateProduct() {
 
   return (
     <Container maxWidth="sm">
-      <Box margin={"7rem 0"}>
+      <Box my={2} boxShadow={3} borderRadius={2} py={2} px={4}>
         <Typography variant="h4" align="center" gutterBottom>
           Edit Product
         </Typography>
@@ -91,6 +103,13 @@ export default function UpdateProduct() {
             fullWidth
             margin="normal"
             {...register("name", { required: true })}
+            InputProps={{
+              inputProps: {
+                style: {
+                  padding: "10px 8px",
+                },
+              },
+            }}
           />
 
           {/* Product Price */}
@@ -101,6 +120,13 @@ export default function UpdateProduct() {
             fullWidth
             margin="normal"
             {...register("price", { required: true })}
+            InputProps={{
+              inputProps: {
+                style: {
+                  padding: "10px 8px",
+                },
+              },
+            }}
           />
 
           {/* Product Size */}
@@ -128,7 +154,7 @@ export default function UpdateProduct() {
             Color:
           </Typography>
           <FormGroup row>
-            {["red", "green", "blue"].map((color) => (
+            {["white", "purple", "blue", "black"].map((color) => (
               <FormControlLabel
                 control={
                   <Checkbox
@@ -142,6 +168,49 @@ export default function UpdateProduct() {
               />
             ))}
           </FormGroup>
+          {/* Product brand */}
+          <Typography variant="body1" my={1}>
+            Brand:
+          </Typography>
+          <FormControl fullWidth>
+            <InputLabel id="brand-label">Brand</InputLabel>
+            <Controller
+              name="brand"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  labelId="brand-label"
+                  label="Brand"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                >
+                  {["Levis", "Nike", "Mufti", "Adidas"].map((brand) => (
+                    <MenuItem key={brand} value={brand}>
+                      {brand}
+                    </MenuItem>
+                  ))}
+                </Select>
+              )}
+            />
+          </FormControl>
+          {/* description */}
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Product Description"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                required
+                multiline
+                rows={3}
+              />
+            )}
+          />
 
           {/* Product Image */}
           <InputLabel htmlFor="image-upload">Upload Image</InputLabel>

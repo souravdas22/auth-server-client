@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import axiosInstance from "../../helper/axiosInstance";
 
 export const registerUser = async (formData) => {
@@ -5,6 +6,6 @@ export const registerUser = async (formData) => {
     const response = await axiosInstance.post(`/register`, formData);
     return response?.data;
   } catch (error) {
-    console.log(error);
+    toast.error(error?.response?.data?.message);
   }
 };

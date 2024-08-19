@@ -8,6 +8,13 @@ import Register from "./Pages/Auth/Register/Register";
 import ProductForm from "./Pages/Cms/CreateProduct";
 import UpdateProduct from "./Pages/Cms/UpdateProduct";
 import { toast } from "react-toastify";
+import Home from "./Pages/Cms/Home";
+import ForgotPassword from "./Pages/Auth/Login/ForgotPassword";
+import NewPassword from "./Pages/Auth/Login/NewPassword";
+import ProductDetails from "./Pages/Cms/ProductDetails";
+import ConfirmationPage from "./Pages/Cms/ConfirmationPage";
+import UpdatePassword from "./Pages/Auth/Login/UpdatePassword";
+import ResetConfirmation from "./Pages/Cms/ResetConfirmation";
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -28,7 +35,7 @@ function PrivateRoute({ children }: PrivateRouteProps) {
 const PublicRouteNames = [
   {
     path: "/",
-    Component: <Products />,
+    Component: <Home />,
   },
   {
     path: "/login",
@@ -38,9 +45,36 @@ const PublicRouteNames = [
     path: "/register",
     Component: <Register />,
   },
+  {
+    path: "/forgot-password",
+    Component: <ForgotPassword />,
+  },
+
+  // for register email verification
+  {
+    path: "/verified/:email/:token",
+    Component: <ConfirmationPage />,
+  },
+  // for register password reset verification
+  {
+    path: "/password-reset/verification/:email/:token",
+    Component: <ResetConfirmation />,
+  },
+  {
+    path: "/password-reset/:id",
+    Component: <NewPassword />,
+  },
 ];
 
 const PrivateRouteNames = [
+  {
+    path: "/products",
+    Component: <Products />,
+  },
+  {
+    path: "/product/:id",
+    Component: <ProductDetails />,
+  },
   {
     path: "/create",
     Component: <ProductForm />,
@@ -49,6 +83,11 @@ const PrivateRouteNames = [
     path: "/update/:id",
     Component: <UpdateProduct />,
   },
+  {
+    path: "/update-password",
+    Component: <UpdatePassword />,
+  },
+ 
 ];
 
 function App() {

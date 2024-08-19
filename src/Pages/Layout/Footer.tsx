@@ -10,7 +10,6 @@ const Footer: React.FC = () => {
         backgroundColor: "teal",
         color: "white",
         padding: "1rem 0",
-        marginTop: "auto",
         textAlign: "center",
       }}
     >

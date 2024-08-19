@@ -11,6 +11,9 @@ import {
   Box,
   InputLabel,
   Input,
+  FormControl,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { useMutation } from "react-query";
 import { createProduct } from "../../Api/Queries/createProduct.api";
@@ -22,7 +25,9 @@ interface ProductFormInputs {
   price: number;
   size: string[];
   color: string[];
-  image: FileList | null; // To handle file input
+  brand: string;
+  description: string;
+  image: FileList | null; 
 }
 
 const ProductForm: React.FC = () => {
@@ -33,6 +38,8 @@ const ProductForm: React.FC = () => {
       price: 0,
       size: [],
       color: [],
+      brand: '',
+      description:'',
       image: null,
     },
   });
@@ -40,12 +47,13 @@ const ProductForm: React.FC = () => {
   const mutation = useMutation(createProduct, {
     onSuccess: () => {
       toast.success("Product created successfully");
-      navigate("/");
+      navigate("/products");
     },
     onError: () => {
       toast.error("Failed to create product");
     },
   });
+  
 
   const onSubmit = (formData: ProductFormInputs) => {
     const productData = new FormData();
@@ -53,8 +61,12 @@ const ProductForm: React.FC = () => {
     productData.append("price", formData.price.toString());
     formData.size.forEach((size) => productData.append("size", size));
     formData.color.forEach((color) => productData.append("color", color));
+       productData.append("brand", formData.brand);
+
+        productData.append("description", formData.description);
+
     if (formData.image && formData.image.length > 0) {
-      productData.append("image", formData.image[0]); // Only append the first file
+      productData.append("image", formData.image[0]); 
     }
 
     mutation.mutate(productData);
@@ -62,12 +74,11 @@ const ProductForm: React.FC = () => {
 
   return (
     <Container maxWidth="sm">
-      <Box p={5} boxShadow={3} borderRadius={2} margin={"50px 0"}>
+      <Box px={4} py={2} boxShadow={3} borderRadius={2} margin={"20px 0"}>
         <Typography variant="h4" align="center">
           Create Product
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Product Name */}
           <Controller
             name="name"
             control={control}
@@ -79,6 +90,13 @@ const ProductForm: React.FC = () => {
                 fullWidth
                 margin="normal"
                 required
+                InputProps={{
+                  inputProps: {
+                    style: {
+                      padding: "10px 8px",
+                    },
+                  },
+                }}
               />
             )}
           />
@@ -96,12 +114,19 @@ const ProductForm: React.FC = () => {
                 fullWidth
                 margin="normal"
                 required
+                InputProps={{
+                  inputProps: {
+                    style: {
+                      padding: "10px 8px",
+                    },
+                  },
+                }}
               />
             )}
           />
 
           {/* Product Size */}
-          <Typography variant="h6">Size:</Typography>
+          <Typography variant="body1">Size:</Typography>
           <FormGroup row>
             {["s", "m", "l", "xl", "xxl"].map((size) => (
               <FormControlLabel
@@ -132,9 +157,9 @@ const ProductForm: React.FC = () => {
           </FormGroup>
 
           {/* Product Color */}
-          <Typography variant="h6">Color:</Typography>
+          <Typography variant="body1">Color:</Typography>
           <FormGroup row>
-            {["red", "green", "blue"].map((color) => (
+            {["white", "purple", "blue", "black"].map((color) => (
               <FormControlLabel
                 key={color}
                 control={
@@ -161,8 +186,48 @@ const ProductForm: React.FC = () => {
               />
             ))}
           </FormGroup>
+          {/* Product brand */}
+          <Typography variant="body1">Brand:</Typography>
+          <FormControl fullWidth>
+            <InputLabel id="brand-label">Brand</InputLabel>
+            <Controller
+              name="brand"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  labelId="brand-label"
+                  label="Brand"
+                  value={field.value || ""} 
+                  onChange={(e) => field.onChange(e.target.value)}
+                >
+                  {["Levis", "Nike", "Mufti", "Adidas"].map((brand) => (
+                    <MenuItem key={brand} value={brand}>
+                      {brand}
+                    </MenuItem>
+                  ))}
+                </Select>
+              )}
+            />
+          </FormControl>
+          {/* description */}
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Product Description"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                required
+                multiline
+                rows={3}
+              />
+            )}
+          />
 
-          {/* Product Image */}
           <InputLabel htmlFor="image-upload">Upload Image</InputLabel>
           <Input
             id="image-upload"
@@ -171,7 +236,6 @@ const ProductForm: React.FC = () => {
             {...register("image")}
           />
 
-          {/* Submit Button */}
           <Box mt={3}>
             <Button
               type="submit"

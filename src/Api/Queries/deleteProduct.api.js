@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import axiosInstance from "../../helper/axiosInstance";
 
 export const deletedProduct = async (id) => {
@@ -5,6 +6,6 @@ export const deletedProduct = async (id) => {
     const response = await axiosInstance.get(`/delete/${id}`);
     return response?.data?.data;
   } catch (error) {
-   console.log(error)
+   toast.error(error?.response?.data?.message);
   }
 };

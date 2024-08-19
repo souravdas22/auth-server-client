@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import axiosInstance from "../../helper/axiosInstance";
 
 export const getProducts = async () => {
@@ -5,6 +6,6 @@ export const getProducts = async () => {
     const response = await axiosInstance.get("/products");
     return response?.data;
   } catch (error) {
-    console.log(error);
+     toast.error(error?.response?.data?.message);
   }
 };

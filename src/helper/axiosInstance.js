@@ -1,4 +1,5 @@
 import axios from "axios";
+// let adminUrl = "https://auth-crud-server-1.onrender.com/api";
 let adminUrl = "http://localhost:7000/api";
 
 export const baseURL = adminUrl;
@@ -10,6 +11,15 @@ export { adminUrl };
 export const profile_pic = (media) => {
   return `http://localhost:7000/${media}`;
 };
+// export const profile_pic = (media) => {
+//   return `https://auth-crud-server-1.onrender.com/${media}`;
+// };
+export const product_img = (media) => {
+  return `http://localhost:7000/${media}`;
+};
+// export const product_img = (media) => {
+//   return `https://auth-crud-server-1.onrender.com/${media}`;
+// };
 
 axiosInstance.interceptors.request.use(
   async function (config) {

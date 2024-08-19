@@ -15,8 +15,6 @@ import AdbIcon from "@mui/icons-material/Adb";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const pages = [{ page: "Products", p: "/" }];
-
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
@@ -45,19 +43,28 @@ function Navbar() {
     localStorage.removeItem("token");
     toast.success("logout succesfully");
     sessionStorage.removeItem("token");
-    localStorage.removeItem('profile')
-    localStorage.removeItem('username')
+    localStorage.removeItem("profile");
+    localStorage.removeItem("username");
     navigate("/login");
   };
-const profileImage =localStorage.getItem("profile") || "";
-const userName =localStorage.getItem("username") || "";
 
-  const settings = [
-    { page: "Register", p: "/register" },
-    localStorage.getItem("token")
-      ? { page: "Logout", p: "" } 
-      : { page: "Login", p: "/login" },
+  const profileImage = localStorage.getItem("profile") || "";
+  const userName = localStorage.getItem("username") || "";
+  const token = localStorage.getItem("token");
+  const pages = [
+    { page: "Products", p: "/products" },
+    { page: "Home", p: "/" },
   ];
+
+ const settings = [
+   { page: "Register", p: "/register" },
+   ...(token
+     ? [
+         { page: "Update Password", p: "/update-password" },
+         { page: "Logout", p: "" },
+       ]
+     : [{ page: "Login", p: "/login" }]),
+ ];
 
   return (
     <AppBar position="static" sx={{ bgcolor: "teal" }}>
@@ -159,7 +166,13 @@ const userName =localStorage.getItem("username") || "";
               </Link>
             ))}
           </Box>
-          <Typography variant="body1" mx={1} sx={{textTransform:"capitalize",fontWeight:"500"}}>{userName}</Typography>
+          <Typography
+            variant="body1"
+            mx={1}
+            sx={{ textTransform: "capitalize", fontWeight: "500" }}
+          >
+            {userName}
+          </Typography>
 
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
