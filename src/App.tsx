@@ -14,7 +14,6 @@ import NewPassword from "./Pages/Auth/Login/NewPassword";
 import ProductDetails from "./Pages/Cms/ProductDetails";
 import ConfirmationPage from "./Pages/Cms/ConfirmationPage";
 import UpdatePassword from "./Pages/Auth/Login/UpdatePassword";
-import ResetConfirmation from "./Pages/Cms/ResetConfirmation";
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -49,19 +48,13 @@ const PublicRouteNames = [
     path: "/forgot-password",
     Component: <ForgotPassword />,
   },
-
-  // for register email verification
   {
     path: "/verified/:email/:token",
     Component: <ConfirmationPage />,
   },
-  // for register password reset verification
+
   {
-    path: "/password-reset/verification/:email/:token",
-    Component: <ResetConfirmation />,
-  },
-  {
-    path: "/password-reset/:id",
+    path: "/password-reset/:email/:token",
     Component: <NewPassword />,
   },
 ];

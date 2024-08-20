@@ -19,10 +19,7 @@ export default function ForgotPassword() {
 
   const mutation = useMutation(forgotPassword, {
     onSuccess: (data) => {
-      toast.success(data?.message);
-          // Uncomment this if you want to navigate after success
-          console.log(data)
-     
+      toast.success(data?.message);     
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "An error occurred");

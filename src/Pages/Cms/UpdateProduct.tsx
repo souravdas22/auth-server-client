@@ -70,7 +70,6 @@ export default function UpdateProduct() {
   });
 
   const onSubmit = (formData: IProductForm) => {
-    console.log(formData?.image)
     const productData = new FormData();
     productData.append("name", formData.name);
     productData.append("price", formData.price.toString());

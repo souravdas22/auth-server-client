@@ -1,11 +1,12 @@
 import { Box, TextField, Typography } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useMutation } from "react-query";
 import { toast } from "react-toastify";
 import { newPassword } from "../../../Api/Queries/newPassword.api";
 import { useNavigate, useParams } from "react-router-dom";
+import axiosInstance from "../../../helper/axiosInstance";
 
 interface FPInputs {
   newPassword: string;
@@ -13,7 +14,24 @@ interface FPInputs {
 }
 
 export default function NewPassword() {
-  const { id } = useParams();
+  const { email, token } = useParams();
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axiosInstance.get(
+          `/password-reset/confirmation/${email}/${token}`
+        );
+        toast.success(res?.data?.message);
+        return res.data;
+      } catch (err: any) {
+        toast.error(err?.response?.data?.message);
+      }
+    };
+
+    fetchProduct();
+  }, [email, token]);
+   
   const navigate = useNavigate();
 
   const {
@@ -25,7 +43,7 @@ export default function NewPassword() {
   const mutation = useMutation(newPassword, {
     onSuccess: (data) => {
       toast.success(data?.message);
-      // Uncomment this if you want to navigate after success
+
       if (data?.status === 200) {
         navigate("/login");
       }
@@ -39,7 +57,7 @@ export default function NewPassword() {
     if (data.newPassword !== data.confirmNewPassword) {
       toast.error("Confirm password does not match");
     } else {
-      mutation.mutate({ data, id });
+      mutation.mutate({ data, email });
     }
   };
 
