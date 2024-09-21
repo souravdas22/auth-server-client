@@ -128,7 +128,7 @@ const ProductForm: React.FC = () => {
           {/* Product Size */}
           <Typography variant="body1">Size:</Typography>
           <FormGroup row>
-            {["s", "m", "l", "xl", "xxl"].map((size) => (
+            {["s", "m", "xl", "xxl"].map((size) => (
               <FormControlLabel
                 key={size}
                 control={

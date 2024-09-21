@@ -18,11 +18,12 @@ import {
   Slider,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { product_img } from "../../helper/axiosInstance";
+import axiosInstance, { product_img } from "../../helper/axiosInstance";
 import { fetchProductbysize } from "../../Api/Queries/filterBySize.api";
 import { fetchProductbycolor } from "../../Api/Queries/filterByColor.api";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { fetchProductbybrand } from "../../Api/Queries/filterByBrands.api";
+import SearchIcon from "@mui/icons-material/Search";
 
 interface Product {
   _id: string;
@@ -43,47 +44,74 @@ export default function Products() {
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-const [priceRange, setPriceRange] = useState<number[]>([500, 2500]);
+  const [priceRange, setPriceRange] = useState<number[]>([500, 2500]);
 
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [searchTerm, setSearchTerm] = useState("");
   const [limit, setLimit] = useState(4);
-  console.log(limit)
 
-  const { data, refetch } = useQuery({
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+
+
+
+
+  const { data, refetch, isLoading, isError } = useQuery({
     queryKey: ["products"],
     queryFn: getProducts,
     onSuccess: (data) => {
-      setProducts(data.data);
-      setOriginalProducts(data.data);
+      setProducts(data?.data);
+      setOriginalProducts(data?.data);
     },
   });
+
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const queryString = new URLSearchParams({ name: searchQuery }).toString();
+      const response = await axiosInstance.get<Product[]>(
+        `/products/search?${queryString}`
+      );
+
+      setOriginalProducts(response?.data);
+    } catch (err) {
+      setOriginalProducts([]);
+    }
+  };
+
+  useEffect(() => {
+    setProducts(originalProducts && originalProducts);
+  }, [originalProducts]);
 
   useEffect(() => {
     if (selectedSizes.length > 0) {
       fetchProductbysize(selectedSizes).then((response) => {
-        setProducts(response);
+        setOriginalProducts(response);
       });
     } else if (data) {
-      setProducts(data?.data);
+      setOriginalProducts(data?.data);
     }
   }, [selectedSizes, data]);
 
   useEffect(() => {
     if (selectedColors.length > 0) {
       fetchProductbycolor(selectedColors).then((response) => {
-        setProducts(response);
+        setOriginalProducts(response);
       });
     } else if (data) {
-      setProducts(data?.data);
+      setOriginalProducts(data?.data);
     }
   }, [selectedColors, data]);
   useEffect(() => {
     if (selectedBrands.length > 0) {
       fetchProductbybrand(selectedBrands).then((response) => {
-        setProducts(response);
+        setOriginalProducts(response);
       });
     } else if (data) {
-      setProducts(data?.data);
+      setOriginalProducts(data?.data);
     }
   }, [selectedBrands, data]);
 
@@ -94,38 +122,13 @@ const [priceRange, setPriceRange] = useState<number[]>([500, 2500]);
     },
   });
 
-  useEffect(() => {
-    const handleSearch = (searchTerm: string) => {
-      if (searchTerm === "") {
-        setProducts(originalProducts);
-      } else {
-        const searchedProducts = originalProducts.filter((product) =>
-          product.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setProducts(searchedProducts);
-      }
-    };
-
-    handleSearch(searchTerm);
-  }, [searchTerm, originalProducts]);
-  useEffect(() => {
-    if (data) {
-      const filteredByPrice = data.data.filter(
-        (product: Product) =>
-          product.price >= priceRange[0] && product.price <= priceRange[1]
-      );
-      setProducts(filteredByPrice);
-    }
-  }, [priceRange, data]);
-
-
-  const handleSizeChange = (size: string) => {
+  function handleSizeChange(size: string) {
     setSelectedSizes((prevSizes) =>
       prevSizes.includes(size)
         ? prevSizes.filter((s) => s !== size)
         : [...prevSizes, size]
     );
-  };
+  }
 
   const handleColorChange = (color: string) => {
     setSelectedColors((prevColors) =>
@@ -141,12 +144,21 @@ const [priceRange, setPriceRange] = useState<number[]>([500, 2500]);
         : [...prevBrands, brand]
     );
   };
-  const handlePriceRangeChange = (newValue: number | number[]) => {
-    if (Array.isArray(newValue)) {
-      setPriceRange(newValue);
-    }
+  const handlePriceRangeChange = (newValue:number[]) => {
+         setPriceRange(newValue);
+
   };
 
+ useEffect(() => {
+   if (originalProducts && priceRange.length === 2) {
+     const filteredProducts = originalProducts.filter(
+       (product) =>
+         product.price >= priceRange[0] && product.price <= priceRange[1]
+     );
+     setProducts(filteredProducts);
+   }
+ }, [priceRange, originalProducts]);
+  
   return (
     <Container maxWidth="xl">
       <Box
@@ -277,7 +289,11 @@ const [priceRange, setPriceRange] = useState<number[]>([500, 2500]);
 
         {/* Products section */}
         <Container maxWidth="lg">
-          <Box display={"flex"} justifyContent={"space-between"}>
+          <Box
+            display={"flex"}
+            justifyContent={"space-between"}
+            alignItems={"center"}
+          >
             {" "}
             <Button
               component={Link}
@@ -289,21 +305,32 @@ const [priceRange, setPriceRange] = useState<number[]>([500, 2500]);
               Add Product
             </Button>
             <Box display={"flex"} alignItems={"center"} gap={1}>
-              <TextField
-                variant="outlined"
-                placeholder="Search products here..."
-                sx={{ mb: 2 }}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  inputProps: {
-                    style: {
-                      padding: "5px 8px",
-                      width: "230px",
-                    },
-                  },
+              <Box
+                onSubmit={handleSubmit}
+                component={"form"}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
-              />
+              >
+                <TextField
+                  label="Search for Products"
+                  variant="outlined"
+                  fullWidth
+                  value={searchQuery}
+                  onChange={handleChange}
+                  margin="normal"
+                />
+                <Button
+                  variant="text"
+                  color="primary"
+                  type="submit"
+                  sx={{ py: 2 }}
+                >
+                  <SearchIcon/>
+                </Button>
+              </Box>
             </Box>
           </Box>
           <Grid container spacing={3}>
@@ -322,7 +349,7 @@ const [priceRange, setPriceRange] = useState<number[]>([500, 2500]);
                         alt={product.name}
                         style={{
                           width: "100%",
-                          height: "300px",
+                          height: "200px",
                           objectFit: "cover",
                           objectPosition: "center",
                         }}
@@ -409,6 +436,12 @@ const [priceRange, setPriceRange] = useState<number[]>([500, 2500]);
                   </Paper>
                 </Grid>
               ))}
+            {isLoading && <div>Loading...</div>}
+
+            {isError && (
+              <div>Error fetching products. Please try again later.</div>
+            )}
+
             {products.length === 0 && (
               <Typography variant="body1" mt={3}>
                 No products available
@@ -423,34 +456,37 @@ const [priceRange, setPriceRange] = useState<number[]>([500, 2500]);
             mb={4}
             gap={2}
           >
-            <Button
-              variant="contained"
-              color="inherit"
-
-              onClick={() => {
-                if (limit > products.length) {
-                  setLimit(products.length);
-                } else {
-                  setLimit(limit + 4);
-                }
-              }}
-            >
-              Show More
-            </Button>
-            <Button
-              variant="outlined"
-              color="inherit"
-              onClick={() => {
-                if (limit < 1) {
-                  setLimit(4);
-                }
-                if (limit > 4) {
-                  setLimit(limit - 4);
-                }
-              }}
-            >
-              Show Less
-            </Button>
+            {products && products.length >= limit && (
+              <Button
+                variant="contained"
+                color="inherit"
+                onClick={() => {
+                  if (limit > products.length) {
+                    setLimit(products.length);
+                  } else {
+                    setLimit(limit + 4);
+                  }
+                }}
+              >
+                Show More
+              </Button>
+            )}
+            {products && products.length >= limit && (
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() => {
+                  if (limit < 1) {
+                    setLimit(4);
+                  }
+                  if (limit > 4) {
+                    setLimit(limit - 4);
+                  }
+                }}
+              >
+                Show Less
+              </Button>
+            )}
           </Box>
         </Container>
       </Box>
